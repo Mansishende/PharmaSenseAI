@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
+from ai_assistant import ask_ai
 
 # ============================================================
 # PHARMASENSEAI - PHARMACEUTICAL RESEARCH INTELLIGENCE
@@ -353,6 +354,7 @@ with st.sidebar:
         [
             "🏠 Overview",
             "🔎 Compound Search",
+            "🤖 AI Assistant",
         ],
         label_visibility="collapsed",
     )
@@ -830,6 +832,55 @@ elif page == "🔎 Compound Search":
 
 
 # ============================================================
+
+
+elif page == "🤖 AI Assistant":
+
+    st.title("🤖 PharmaSenseAI Assistant")
+
+    st.write(
+        "Ask questions about pharmaceutical research "
+        "and clinical trials."
+    )
+
+    st.info(
+        "This assistant uses your local Ollama Llama 3.2 model. "
+        "Please verify important medical information."
+    )
+
+    if "ai_messages" not in st.session_state:
+        st.session_state.ai_messages = [
+            {
+                "role": "assistant",
+                "content": (
+                    "Hello! Ask me about pharmaceutical research "
+                    "or clinical trials."
+                ),
+            }
+        ]
+
+    for message in st.session_state.ai_messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    question = st.chat_input("Type your question here...")
+
+    if question:
+        st.session_state.ai_messages.append(
+            {"role": "user", "content": question}
+        )
+
+        with st.chat_message("user"):
+            st.markdown(question)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                answer = ask_ai(question)
+            st.markdown(answer)
+
+        st.session_state.ai_messages.append(
+            {"role": "assistant", "content": answer}
+        )
 # FOOTER
 # ============================================================
 
